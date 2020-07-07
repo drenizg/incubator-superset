@@ -21,6 +21,8 @@ from logging.handlers import TimedRotatingFileHandler
 import flask.app
 import flask.config
 
+logger = logging.getLogger(__name__)
+
 
 # pylint: disable=too-few-public-methods
 class LoggingConfigurator(abc.ABC):
@@ -35,7 +37,7 @@ class DefaultLoggingConfigurator(LoggingConfigurator):
     def configure_logging(
         self, app_config: flask.config.Config, debug_mode: bool
     ) -> None:
-        if app_config.get("SILENCE_FAB"):
+        if app_config["SILENCE_FAB"]:
             logging.getLogger("flask_appbuilder").setLevel(logging.ERROR)
 
         # configure superset app logger
@@ -54,14 +56,14 @@ class DefaultLoggingConfigurator(LoggingConfigurator):
         logging.basicConfig(format=app_config["LOG_FORMAT"])
         logging.getLogger().setLevel(app_config["LOG_LEVEL"])
 
-        if app_config.get("ENABLE_TIME_ROTATE"):
+        if app_config["ENABLE_TIME_ROTATE"]:
             logging.getLogger().setLevel(app_config["TIME_ROTATE_LOG_LEVEL"])
-            handler = TimedRotatingFileHandler(  # type: ignore
-                app_config.get("FILENAME"),
-                when=app_config.get("ROLLOVER"),
-                interval=app_config.get("INTERVAL"),
-                backupCount=app_config.get("BACKUP_COUNT"),
+            handler = TimedRotatingFileHandler(
+                app_config["FILENAME"],
+                when=app_config["ROLLOVER"],
+                interval=app_config["INTERVAL"],
+                backupCount=app_config["BACKUP_COUNT"],
             )
             logging.getLogger().addHandler(handler)
 
-        logging.info("logging was configured successfully")
+        logger.info("logging was configured successfully")
